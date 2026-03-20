@@ -1,6 +1,6 @@
 # Poker Night Tracker
 
-[![Live App](https://img.shields.io/badge/Live%20App-Poker%20Tracker-0b8f3a?style=for-the-badge)](YOUR_WEB_APP_URL)
+[![Live App](https://img.shields.io/badge/Live%20App-Poker%20Tracker-0b8f3a?style=for-the-badge)](https://tinyurl.com/78666poker)
 ![Tech](https://img.shields.io/badge/Built%20with-Google%20Apps%20Script-4285F4?style=for-the-badge&logo=google&logoColor=white)
 
 Track sessions, standings, and player performance across every game night.
