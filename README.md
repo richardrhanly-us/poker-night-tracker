@@ -46,4 +46,4 @@ This app is deployed via Google Apps Script Web App and is not directly runnable
 
 ## Live Demo
 
-(Add your deployed web app link here)
+https://tinyurl.com/78666poker
