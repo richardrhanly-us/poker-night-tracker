@@ -1,5 +1,9 @@
-[![Live App](https://img.shields.io/badge/Live%20App-Poker%20Tracker-0b8f3a?style=for-the-badge)](YOUR_WEB_APP_URL)
 # Poker Night Tracker
+
+[![Live App](https://img.shields.io/badge/Live%20App-Poker%20Tracker-0b8f3a?style=for-the-badge)](YOUR_WEB_APP_URL)
+![Tech](https://img.shields.io/badge/Built%20with-Google%20Apps%20Script-4285F4?style=for-the-badge&logo=google&logoColor=white)
+
+Track sessions, standings, and player performance across every game night.
 
 A full-stack poker session tracking system built using Google Sheets, Google Apps Script, and a custom mobile-friendly web interface.
 
