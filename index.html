@@ -1,0 +1,1271 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <style>
+    html, body { overflow-x: hidden; }
+    body {
+      font-family: system-ui,-apple-system,Segoe UI,Roboto,Arial;
+      margin: 12px;
+      font-size: 18px;
+      line-height: 1.35;
+      color: #0f172a;
+      background: linear-gradient(180deg, #f8fbff 0%, #f3f8fc 100%);
+    }
+    h1 { font-size: 21px; font-weight: 800; margin: 0 0 10px; }
+
+    :root{
+      --tab-green:#0b8f3a;
+      --tab-hover-blue:#E7F2F8;
+      --tab-hover-blue-border:#cfe3ef;
+      --tab-hover-blue-fg:#0f172a;
+      --ink:#0f172a;
+      --muted:#64748b;
+      --border:#d8e4f0;
+      --panel-top:#F5FAFF;
+      --panel-bottom:#EEF6FE;
+      --danger:#b42318;
+      --success:#0b8f3a;
+      --shadow:0 8px 22px rgba(15,23,42,.06);
+    }
+
+    .hero{
+      border:1px solid var(--border);
+      background:
+        radial-gradient(circle at top right, rgba(11,143,58,.12), transparent 28%),
+        linear-gradient(180deg,var(--panel-top) 0%, var(--panel-bottom) 100%);
+      box-shadow: var(--shadow);
+      border-radius:18px;
+      padding:18px 18px 14px;
+      margin-bottom:12px;
+    }
+    .hero-title{
+      font-size:28px;
+      font-weight:900;
+      letter-spacing:-.02em;
+      margin:0 0 6px;
+      color:var(--ink);
+    }
+    .hero-sub{
+      margin:0;
+      color:#475569;
+      font-size:15px;
+      font-weight:600;
+    }
+    .hero-top{
+      display:flex;
+      flex-direction:column;
+      gap:6px;
+      margin-bottom:14px;
+    }
+    .hero-stats{
+      display:grid;
+      grid-template-columns: repeat(4, minmax(0,1fr));
+      gap:10px;
+    }
+    .hero-chip{
+      border:1px solid var(--border);
+      background:rgba(255,255,255,.75);
+      border-radius:14px;
+      padding:10px 12px;
+      min-width:0;
+    }
+    .hero-chip-label{
+      font-size:12px;
+      font-weight:800;
+      color:var(--muted);
+      text-transform:uppercase;
+      letter-spacing:.04em;
+      margin-bottom:4px;
+    }
+    .hero-chip-value{
+      font-size:20px;
+      font-weight:900;
+      color:var(--ink);
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+    }
+
+    .tabs { display:flex; gap:10px; margin:12px 0 10px; }
+    .tab{
+      flex:1; padding:12px; border:1px solid #d1d5db; border-radius:12px;
+      background:#f8fafc; font-weight:800; font-size:17px; cursor:pointer;
+      transition: background-color .15s ease, color .15s ease, border-color .15s ease, box-shadow .15s ease, filter .15s ease;
+    }
+    .tab.active{ background:var(--tab-green); color:#fff; border-color:var(--tab-green); }
+    .tab:not(.active):hover,.tab:not(.active):focus-visible{
+      background:var(--tab-hover-blue); color:var(--tab-hover-blue-fg);
+      border-color:var(--tab-hover-blue-border); box-shadow:0 0 0 3px rgba(59,130,246,.15);
+    }
+    .tab.active:hover,.tab.active:focus-visible{ filter:brightness(0.95); box-shadow:0 0 0 3px rgba(11,143,58,.15); }
+
+    .table-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+    .table-scroll > table { min-width: 980px; width: 100%; }
+    @media (max-width: 400px) { .table-scroll > table { min-width: 880px; } }
+
+    .row { display:grid; grid-template-columns: 1fr; gap:10px; margin:10px 0; }
+    .field { display:flex; flex-direction:column; }
+    label { font-size:14px; color:#334155; margin-bottom:6px; font-weight:700; display:flex; align-items:center; gap:8px; }
+    select {
+      padding:12px; font-size:18px; border:1px solid #d1d5db; border-radius:10px;
+      background:#fff; box-shadow:0 1px 0 rgba(15,23,42,.03);
+    }
+
+    table { width:100%; border-collapse:collapse; margin-top:8px; }
+    th, td { padding:12px; border-bottom:1px solid #e5e7eb; font-size:18px; }
+    th { position:sticky; top:0; background:#E7F2F8; font-weight:900; }
+    th.sortable { cursor:pointer; user-select:none; }
+    th.sortable .arrow { opacity:.6; margin-left:6px; }
+    .num { text-align:right; }
+    .txt { text-align:left; }
+
+    .hint { font-size:14px; color:#64748b; margin-top:6px; }
+    .status { font-size:14px; margin-top:6px; }
+    .ok { color:#0b8f3a; }
+    .err { color:#b42318; white-space:pre-wrap; }
+
+    .card{
+      border:1px solid #d8e4f0;
+      background:linear-gradient(180deg,#F5FAFF 0%, #EEF6FE 100%);
+      box-shadow:0 8px 22px rgba(15,23,42,.06);
+      border-radius:14px;
+      padding:14px 16px;
+    }
+
+    .section-card{
+      border:1px solid #d8e4f0;
+      background:rgba(255,255,255,.72);
+      box-shadow:0 8px 22px rgba(15,23,42,.04);
+      border-radius:16px;
+      padding:14px 16px;
+      margin-top:10px;
+    }
+    .section-title{
+      font-size:18px;
+      font-weight:900;
+      color:var(--ink);
+      margin:0 0 10px;
+    }
+
+    .badge{
+      display:inline-block; padding:4px 8px; border-radius:999px;
+      border:1px solid #cfe3ef; font-size:13px; font-weight:700; background:#fff;
+    }
+
+    .medal{
+      width:72px;
+      height:72px;
+      vertical-align:-6px;
+      margin-left:8px;
+    }
+    .summary-grid{
+      display:grid;
+      grid-template-columns: repeat(4, minmax(0,1fr));
+      gap:10px;
+      margin-bottom:8px;
+    }
+    .summary-card{
+      border:1px solid var(--border);
+      background:linear-gradient(180deg,#ffffff 0%, #f7fbff 100%);
+      border-radius:14px;
+      padding:12px 14px;
+      min-width:0;
+    }
+    .summary-label{
+      font-size:12px;
+      font-weight:800;
+      color:var(--muted);
+      text-transform:uppercase;
+      letter-spacing:.04em;
+      margin-bottom:5px;
+    }
+    .summary-value{
+      font-size:22px;
+      font-weight:900;
+      color:var(--ink);
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+    }
+    .summary-sub{
+      margin-top:4px;
+      font-size:13px;
+      color:#475569;
+      font-weight:700;
+    }
+
+    .session-summary{
+      display:grid;
+      grid-template-columns: repeat(4, minmax(0,1fr));
+      gap:10px;
+      margin:8px 0 10px;
+    }
+
+    .player-top{
+      display:grid;
+      grid-template-columns: clamp(360px, 28vw, 460px) 1fr;
+      grid-template-areas: "dash chart";
+      gap:14px;
+      align-items:start;
+      margin:8px 0 4px;
+    }
+
+    .player-empty{
+    text-align:center;
+    padding:36px 20px;
+    }
+    .player-empty-title{
+      font-size:18px;
+      font-weight:900;
+      color:#0f172a;
+      margin-bottom:8px;
+    }
+    .player-empty-sub{
+      font-size:14px;
+      color:#64748b;
+      font-weight:700;
+    }
+    #playerDash{ grid-area:dash; min-width:0; overflow:hidden; }
+    #playerChart{ grid-area:chart; min-width:0; }
+
+    #playerDash h3{
+      margin:0 0 6px; font-size:18px; font-weight:900; color:#0f172a;
+      display:flex; gap:8px; align-items:center;
+    }
+    .subline{
+      margin:0 0 10px;
+      font-size:13px;
+      color:#475569;
+      font-weight:800;
+    }
+
+    .totals-grid{
+      display:grid;
+      grid-template-columns: minmax(0,1fr) minmax(0,1fr);
+      gap:10px;
+      align-items:start;
+    }
+    .totals-col{
+      display:grid;
+      grid-template-columns: 1fr;
+      gap:10px;
+      min-width:0;
+    }
+    .stat-row{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:12px;
+      padding:10px 12px;
+      border-radius:10px;
+      background:rgba(255,255,255,.65);
+      border:1px solid #e4eef7;
+      min-width:0;
+    }
+    .stat-row span{
+      font-weight:800;
+      color:#0f172a;
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+      min-width:0;
+    }
+    .stat-row b{
+      font-size:20px;
+      letter-spacing:.2px;
+      margin-left:auto;
+      text-align:right;
+      white-space:nowrap;
+      flex:0 0 auto;
+    }
+
+    .filters{
+      margin-top:12px;
+      display:flex; gap:8px;
+    }
+    .filter-btn{
+      flex:1; text-align:center;
+      padding:10px 12px;
+      border:1px solid #cfe3ef;
+      background:linear-gradient(180deg,#ffffff 0%, #f3f8fc 100%);
+      border-radius:12px;
+      font-weight:900; font-size:14px; cursor:pointer;
+      box-shadow:0 1px 0 rgba(15,23,42,.04);
+    }
+    .filter-btn.active{
+      background:linear-gradient(180deg,#15a34a 0%, #0b8f3a 100%);
+      color:#fff; border-color:#0b8f3a; box-shadow:0 6px 14px rgba(11,143,58,.25);
+    }
+    .filter-btn[hidden]{ display:none !important; }
+
+    .yir-wrap{
+      margin-top:12px;
+      border:1px solid #e5e7eb;
+      border-radius:12px;
+      background:#f8fafc;
+      overflow:hidden;
+    }
+    details.yir-details summary{ list-style:none; cursor:pointer; }
+    details.yir-details summary::-webkit-details-marker{ display:none; }
+
+    .yir-head{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      padding:12px 14px;
+      font-weight:900;
+      gap:10px;
+    }
+    .yir-head .left{
+      display:flex;
+      flex-direction:column;
+      gap:2px;
+    }
+    .yir-title{ font-size:18px; font-weight:900; color:#0f172a; }
+    .yir-sub{ font-size:13px; color:#475569; font-weight:800; }
+    .yir-right{ display:flex; align-items:center; gap:10px; color:#64748b; font-weight:800; font-size:13px; }
+
+    .yir-body{ padding:0 14px 14px; }
+    .yir-grid{
+      display:grid;
+      grid-template-columns: minmax(0,1fr) 340px;
+      gap:10px;
+      align-items:start;
+    }
+    .miniChartBox{
+      border:1px solid #d8e4f0;
+      background:linear-gradient(180deg,#F5FAFF 0%, #EEF6FE 100%);
+      border-radius:12px;
+      padding:8px;
+      height: 160px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      min-width: 0;
+    }
+
+    .player-link{
+      color:#0f172a;
+      font-weight:800;
+      cursor:pointer;
+      text-decoration:none;
+    }
+    .player-link:hover,
+    .player-link:focus{
+      color:#0b8f3a;
+      text-decoration:underline;
+    }
+
+    #playerChart { max-width: 1040px; width: 100%; margin: 0 auto; }
+
+    .night-images { display:flex; gap:8px; flex-wrap:wrap; margin:8px 0; }
+    .night-images img { width:180px; height:auto; border-radius:8px; border:1px solid #e5e7eb; }
+
+    @media (max-width: 900px) {
+      .hero-stats,
+      .summary-grid,
+      .session-summary{
+        grid-template-columns: 1fr 1fr;
+      }
+      .player-top{
+        grid-template-columns: 1fr;
+        grid-template-areas: "chart" "dash";
+      }
+      .yir-grid{ grid-template-columns: 1fr; }
+      .miniChartBox{ height: 190px; }
+    }
+
+    @media (max-width: 640px) {
+      .hero-stats,
+      .summary-grid,
+      .session-summary{
+        grid-template-columns: 1fr;
+      }
+      .hero-title{ font-size:24px; }
+      .tab{ font-size:16px; padding:11px; }
+    }
+  </style>
+</head>
+
+<body>
+  <header class="hero">
+    <div class="hero-top">
+      <div class="hero-title">Poker Night Tracker</div>
+      <p class="hero-sub">Track sessions, standings, and player performance across every game night.</p>
+      <div id="status" class="status">Loading…</div>
+    </div>
+
+    <div id="heroStats" class="hero-stats">
+      <div class="hero-chip">
+        <div class="hero-chip-label">Sessions</div>
+        <div id="heroSessions" class="hero-chip-value">0</div>
+      </div>
+      <div class="hero-chip">
+        <div class="hero-chip-label">Players</div>
+        <div id="heroPlayers" class="hero-chip-value">0</div>
+      </div>
+      <div class="hero-chip">
+        <div class="hero-chip-label">Latest Session</div>
+        <div id="heroLatest" class="hero-chip-value">—</div>
+      </div>
+      <div class="hero-chip">
+        <div class="hero-chip-label">Leaderboard Leader</div>
+        <div id="heroLeader" class="hero-chip-value">—</div>
+      </div>
+    </div>
+  </header>
+
+  <div class="tabs">
+    <button id="tab-master" class="tab active" onclick="showSection('master')">Leaderboard</button>
+    <button id="tab-night"  class="tab" onclick="showSection('night')">Sessions</button>
+    <button id="tab-player" class="tab" onclick="showSection('player')">Players</button>
+  </div>
+
+  <!-- LEADERBOARD -->
+  <section id="sec-master" class="section-card">
+    <h2 class="section-title">Leaderboard Snapshot</h2>
+
+    <div id="masterHighlights" class="summary-grid">
+      <div class="summary-card">
+        <div class="summary-label">Top Winner</div>
+        <div id="hlTopWinner" class="summary-value">—</div>
+        <div id="hlTopWinnerSub" class="summary-sub">Net total</div>
+      </div>
+      <div class="summary-card">
+        <div class="summary-label">Highest Avg Net</div>
+        <div id="hlHighestAvgNet" class="summary-value">—</div>
+        <div id="hlHighestAvgNetSub" class="summary-sub">Per game average</div>
+      </div>
+      <div class="summary-card">
+        <div class="summary-label">Most Sessions</div>
+        <div id="hlMostSessions" class="summary-value">—</div>
+        <div id="hlMostSessionsSub" class="summary-sub">Games played</div>
+      </div>
+      <div class="summary-card">
+        <div class="summary-label">Total Buy-ins</div>
+        <div id="hlTotalBuyins" class="summary-value">0.00</div>
+        <div id="hlTotalBuyinsSub" class="summary-sub">Across all players</div>
+      </div>
+    </div>
+
+    <div class="hint">Tap a column header to sort.</div>
+    <div class="table-scroll">
+      <table id="masterTable"><thead></thead><tbody></tbody></table>
+    </div>
+  </section>
+
+  <!-- SESSIONS -->
+  <section id="sec-night" class="section-card" style="display:none;">
+    <h2 class="section-title">Session Viewer</h2>
+
+    <div class="row">
+      <div class="field">
+        <label>Session date</label>
+        <select id="nightDate" onchange="loadNight()"></select>
+      </div>
+    </div>
+
+    <div id="nightSummary" class="session-summary">
+      <div class="summary-card">
+        <div class="summary-label">Players</div>
+        <div id="nightPlayers" class="summary-value">0</div>
+      </div>
+      <div class="summary-card">
+        <div class="summary-label">Total Buy-in</div>
+        <div id="nightBuyin" class="summary-value">0.00</div>
+      </div>
+      <div class="summary-card">
+        <div class="summary-label">Total Cash-out</div>
+        <div id="nightCashout" class="summary-value">0.00</div>
+      </div>
+      <div class="summary-card">
+        <div class="summary-label">Net Check</div>
+        <div id="nightNetCheck" class="summary-value">0.00</div>
+      </div>
+    </div>
+
+    <div id="nightImages" class="night-images"></div>
+
+    <div class="hint">Tap a column header to sort.</div>
+    <div class="table-scroll">
+      <table id="nightView"><thead></thead><tbody></tbody></table>
+    </div>
+  </section>
+
+  <!-- PLAYERS -->
+  <section id="sec-player" class="section-card" style="display:none;">
+    <h2 class="section-title">Player Performance</h2>
+
+    <div class="row">
+      <div class="field">
+        <label id="playerLabel">Player</label>
+        <select id="playerSelect" onchange="loadPlayer()"></select>
+      </div>
+    </div>
+
+    <div class="player-top">
+      <aside id="playerDash" class="card">
+        <h3>Totals <span id="scopeBadge" class="badge">All games</span></h3>
+        <div id="gamesAllTime" class="subline">0 games all time</div>
+
+        <div class="totals-grid">
+          <div class="totals-col">
+            <div class="stat-row"><span>Total Buy-in</span><b id="dashBuy">0.00</b></div>
+            <div class="stat-row"><span>Cash-out</span><b id="dashCash">0.00</b></div>
+            <div class="stat-row"><span>Net</span><b id="dashNet">0.00</b></div>
+          </div>
+
+          <div class="totals-col">
+            <div class="stat-row"><span>Avg Buy-in</span><b id="dashAvgBuy">0.00</b></div>
+            <div class="stat-row"><span>Avg Cash-out</span><b id="dashAvgCash">0.00</b></div>
+            <div class="stat-row"><span>Avg Net</span><b id="dashAvgNet">0.00</b></div>
+          </div>
+        </div>
+
+        <div class="filters">
+          <button id="btnAll" class="filter-btn active" onclick="applyPlayerScope('all')">All games</button>
+          <button id="btn10" class="filter-btn" onclick="applyPlayerScope('last10')">Last 10</button>
+          <button id="btn5"  class="filter-btn" onclick="applyPlayerScope('last5')">Last 5</button>
+        </div>
+      </aside>
+
+      <div id="playerChart"></div>
+    </div>
+
+    <div id="yearReviews"></div>
+  </section>
+
+<script>
+const CACHE = {
+  config: null,
+  master: null,
+  nights: new Map(),
+  players: new Map(),
+  top3: null
+};
+
+let CONFIG = null;
+let masterData = { headers: [], rows: [] };
+let nightData  = { rows: [], images: [] };
+let playerDataFull = null;
+let playerScope = 'all';
+
+let masterSort = { col: null, dir: 'desc' };
+let nightSort  = { col: 0, dir: 'asc' };
+
+const FRIENDLY_NIGHT = ['Player','Buy-in','Rebuy 1','Rebuy 2','Rebuy 3','Total Buy-in','Cash-out','Net'];
+const PLAYER_HEADERS = ['Date','Buy-in','Rebuy 1','Rebuy 2','Rebuy 3','Total Buy-in','Cash-out','Net'];
+
+const NF      = new Intl.NumberFormat('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+const NF_INT  = new Intl.NumberFormat('en-US', { maximumFractionDigits: 0 });
+
+function el(id){ return document.getElementById(id); }
+function setStatus(html, cls=''){ const s = el('status'); s.innerHTML = html; s.className = 'status ' + cls; }
+
+function coerceNumber(v){
+  if (v === null || v === undefined) return NaN;
+  if (typeof v === 'number') return Number.isFinite(v) ? v : NaN;
+
+  let s = String(v).trim();
+  if (!s) return NaN;
+  if (s[0] === '(' && s[s.length - 1] === ')') s = '-' + s.slice(1, -1);
+  s = s.replace(/[^0-9.\-]/g, '');
+  const n = parseFloat(s);
+  return Number.isFinite(n) ? n : NaN;
+}
+
+function coerceDate(v){
+  const s = String(v ?? '').trim();
+  if (!s) return NaN;
+
+  const t = Date.parse(s);
+  if (!isNaN(t)) return t;
+
+  const m = s.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
+  if (m) return new Date(+m[3], +m[1]-1, +m[2]).getTime();
+  return NaN;
+}
+
+function openPlayerProfile(playerName){
+  if (!playerName) return;
+
+  ensureConfig(() => {
+    showSection('player');
+
+    const sel = el('playerSelect');
+    if (!sel) return;
+
+    sel.value = playerName;
+    loadPlayer();
+  });
+}
+
+function sortRows(rows, col, dir){
+  const factor = (dir === 'desc') ? -1 : 1;
+  return (rows || []).slice().sort((a,b)=>{
+    const av = (a && a[col] !== undefined) ? a[col] : '';
+    const bv = (b && b[col] !== undefined) ? b[col] : '';
+
+    if (col === 0) {
+      const ad = coerceDate(av);
+      const bd = coerceDate(bv);
+      if (!isNaN(ad) && !isNaN(bd)) return (ad - bd) * factor;
+    }
+
+    const an = coerceNumber(av);
+    const bn = coerceNumber(bv);
+    const aNum = !isNaN(an);
+    const bNum = !isNaN(bn);
+
+    if (aNum && !bNum) return -1;
+    if (!aNum && bNum) return 1;
+    if (aNum && bNum) return (an - bn) * factor;
+
+    return String(av ?? '').localeCompare(String(bv ?? '')) * factor;
+  });
+}
+
+function decoratePosNeg(td, i, cell) {
+  if (i >= 1) {
+    const n = coerceNumber(cell);
+    if (!isNaN(n) && n < 0) td.style.color = '#b42318';
+  }
+}
+
+function renderTable(tableId, headers, rows, sortState, onSort, numericFromIndex = 1, decorateCell = null, integerCols = []) {
+  const t = el(tableId);
+  if (!t) return;
+  const thead = t.querySelector('thead'), tbody = t.querySelector('tbody');
+  thead.innerHTML = ''; tbody.innerHTML = '';
+
+  const trh = document.createElement('tr');
+  headers.forEach((h,i)=>{
+    const th = document.createElement('th');
+    th.classList.add(i >= numericFromIndex ? 'num' : 'txt', 'sortable');
+    th.textContent = h;
+    if (sortState?.col === i) {
+      const arrow = document.createElement('span'); arrow.className = 'arrow';
+      arrow.textContent = sortState.dir === 'asc' ? '▲' : '▼';
+      th.appendChild(arrow);
+    }
+    th.onclick = ()=> onSort(i);
+    trh.appendChild(th);
+  });
+  thead.appendChild(trh);
+
+  const frag = document.createDocumentFragment();
+  (rows || []).forEach(r=>{
+    const tr = document.createElement('tr');
+
+    r.forEach((cell,i)=>{
+      const td = document.createElement('td');
+      td.className = i >= numericFromIndex ? 'num' : 'txt';
+
+      if (tableId === 'masterTable' && i === 0) {
+        const btn = document.createElement('span');
+        btn.className = 'player-link';
+        btn.textContent = cell ?? '';
+        btn.onclick = () => openPlayerProfile(cell);
+        td.appendChild(btn);
+      } else if (i >= numericFromIndex) {
+        const n = coerceNumber(cell);
+        td.textContent = isNaN(n) ? '' : (integerCols.includes(i) ? NF_INT.format(n) : NF.format(n));
+      } else {
+        td.textContent = cell ?? '';
+      }
+
+      if (decorateCell) decorateCell(td, i, cell);
+      tr.appendChild(td);
+    });
+
+    frag.appendChild(tr);
+  });
+
+  tbody.appendChild(frag);
+}
+
+function renderHeroStats(){
+  const sessions = (CONFIG?.nights || []).length;
+  const players = (CONFIG?.players || []).length;
+  const latest = sessions ? CONFIG.nights[CONFIG.nights.length - 1] : '—';
+  const leader = (masterData.rows && masterData.rows.length) ? masterData.rows[0][0] : '—';
+
+  el('heroSessions').textContent = NF_INT.format(sessions);
+  el('heroPlayers').textContent = NF_INT.format(players);
+  el('heroLatest').textContent = latest || '—';
+  el('heroLeader').textContent = leader || '—';
+}
+
+function renderMasterHighlights(rows){
+  if (!rows || !rows.length) return;
+
+  const topWinner = rows[0];
+  const highestAvgNet = rows.slice().sort((a,b)=>(b[4]||0) - (a[4]||0))[0];
+  const mostSessions = rows.slice().sort((a,b)=>(b[1]||0) - (a[1]||0))[0];
+  const totalBuyins = rows.reduce((sum, r) => sum + (coerceNumber(r[5]) || 0), 0);
+
+  el('hlTopWinner').textContent = topWinner?.[0] || '—';
+  el('hlTopWinnerSub').textContent = topWinner ? `${NF.format(coerceNumber(topWinner[7]) || 0)} net total` : 'Net total';
+
+  el('hlHighestAvgNet').textContent = highestAvgNet?.[0] || '—';
+  el('hlHighestAvgNetSub').textContent = highestAvgNet ? `${NF.format(coerceNumber(highestAvgNet[4]) || 0)} per game average` : 'Per game average';
+
+  el('hlMostSessions').textContent = mostSessions?.[0] || '—';
+  el('hlMostSessionsSub').textContent = mostSessions ? `${NF_INT.format(coerceNumber(mostSessions[1]) || 0)} games played` : 'Games played';
+
+  el('hlTotalBuyins').textContent = NF.format(totalBuyins);
+  el('hlTotalBuyinsSub').textContent = 'Across all players';
+}
+
+function renderNightSummary(rows){
+  const players = (rows || []).length;
+  const totalBuyIn = (rows || []).reduce((sum, r) => sum + (coerceNumber(r[5]) || 0), 0);
+  const totalCashOut = (rows || []).reduce((sum, r) => sum + (coerceNumber(r[6]) || 0), 0);
+  const diff = totalCashOut - totalBuyIn;
+
+  el('nightPlayers').textContent = NF_INT.format(players);
+  el('nightBuyin').textContent = NF.format(totalBuyIn);
+  el('nightCashout').textContent = NF.format(totalCashOut);
+  el('nightNetCheck').textContent = NF.format(diff);
+  el('nightNetCheck').style.color = Math.abs(diff) < 0.001 ? '#0b8f3a' : '#b42318';
+}
+
+function renderPlayerChart(dates, running) {
+  const wrap = el('playerChart');
+  wrap.innerHTML = '';
+  if (!dates?.length || !running?.length) return;
+
+  const W = Math.min(wrap.clientWidth || 480, 1040);
+  const H = Math.max(260, Math.min(380, Math.round(W * 0.44)));
+  const PL = 56, PR = 18, PT = 18, PB = 58;
+  const innerW = Math.max(1, W - PL - PR);
+  const innerH = Math.max(1, H - PT - PB);
+
+  const minY = Math.min(...running), maxY = Math.max(...running);
+  const spanY = (maxY - minY) || 1;
+  const xAt  = i => PL + (innerW * (dates.length === 1 ? 0 : i / (dates.length - 1)));
+  const yAt  = v => PT + innerH - ((v - minY) * innerH) / spanY;
+
+  const NS = 'http://www.w3.org/2000/svg';
+  const svg = document.createElementNS(NS,'svg');
+  svg.setAttribute('viewBox', `0 0 ${W} ${H}`);
+  svg.setAttribute('width', '100%');
+  svg.setAttribute('height', H);
+
+  const panel = document.createElementNS(NS,'rect');
+  panel.setAttribute('x', 2); panel.setAttribute('y', 2);
+  panel.setAttribute('rx', 10); panel.setAttribute('ry', 10);
+  panel.setAttribute('width', W - 4); panel.setAttribute('height', H - 4);
+  panel.setAttribute('fill', '#F5FAFF');
+  panel.setAttribute('stroke', '#d8e4f0');
+  svg.appendChild(panel);
+
+  const axis = (x1,y1,x2,y2) => {
+    const l = document.createElementNS(NS,'line');
+    l.setAttribute('x1',x1); l.setAttribute('y1',y1);
+    l.setAttribute('x2',x2); l.setAttribute('y2',y2);
+    l.setAttribute('stroke','#94a3b8'); l.setAttribute('stroke-width','1');
+    svg.appendChild(l);
+  };
+  axis(PL, H-PB, W-PR, H-PB);
+  axis(PL, PT,   PL,   H-PB);
+
+  let d = '';
+  running.forEach((v,i)=>{ d += (i ? 'L' : 'M') + xAt(i) + ' ' + yAt(v) + ' '; });
+
+  const path = document.createElementNS(NS,'path');
+  path.setAttribute('d', d.trim());
+  path.setAttribute('fill', 'none');
+  path.setAttribute('stroke', '#0b8f3a');
+  path.setAttribute('stroke-width', '2.3');
+  path.setAttribute('stroke-linecap','round');
+  path.setAttribute('stroke-linejoin','round');
+  svg.appendChild(path);
+
+  wrap.appendChild(svg);
+}
+
+function renderMiniChart(container, dates, running){
+  container.innerHTML = '';
+  if (!dates?.length || !running?.length) return;
+
+  const W = container.clientWidth ? Math.min(container.clientWidth, 340) : 340;
+  const H = 140;
+  const PL = 10, PR = 10, PT = 10, PB = 18;
+  const innerW = Math.max(1, W - PL - PR);
+  const innerH = Math.max(1, H - PT - PB);
+
+  const minY = Math.min(...running), maxY = Math.max(...running);
+  const spanY = (maxY - minY) || 1;
+  const xAt  = i => PL + (innerW * (dates.length === 1 ? 0 : i / (dates.length - 1)));
+  const yAt  = v => PT + innerH - ((v - minY) * innerH) / spanY;
+
+  const NS = 'http://www.w3.org/2000/svg';
+  const svg = document.createElementNS(NS,'svg');
+  svg.setAttribute('viewBox', `0 0 ${W} ${H}`);
+  svg.setAttribute('width', '100%');
+  svg.setAttribute('height', H);
+
+  const panel = document.createElementNS(NS,'rect');
+  panel.setAttribute('x', 1); panel.setAttribute('y', 1);
+  panel.setAttribute('rx', 10); panel.setAttribute('ry', 10);
+  panel.setAttribute('width', W - 2); panel.setAttribute('height', H - 2);
+  panel.setAttribute('fill', '#F5FAFF');
+  panel.setAttribute('stroke', '#d8e4f0');
+  svg.appendChild(panel);
+
+  let d = '';
+  running.forEach((v,i)=>{ d += (i ? 'L' : 'M') + xAt(i) + ' ' + yAt(v) + ' '; });
+
+  const path = document.createElementNS(NS,'path');
+  path.setAttribute('d', d.trim());
+  path.setAttribute('fill', 'none');
+  path.setAttribute('stroke', '#0b8f3a');
+  path.setAttribute('stroke-width', '2.2');
+  path.setAttribute('stroke-linecap','round');
+  path.setAttribute('stroke-linejoin','round');
+  svg.appendChild(path);
+
+  container.appendChild(svg);
+}
+
+function ensureTop3(next){
+  if (CACHE.top3) return next && next(CACHE.top3);
+
+  google.script.run
+    .withSuccessHandler(data => { CACHE.top3 = data || {top3:[], medals:{}}; next && next(CACHE.top3); })
+    .withFailureHandler(() => { CACHE.top3 = {top3:[], medals:{}}; next && next(CACHE.top3); })
+    .mobile_getLeaderboardTop3();
+}
+
+function medalForPlayer(playerName){
+  const d = CACHE.top3;
+  if (!d || !Array.isArray(d.top3)) return null;
+  const hit = d.top3.find(x => String(x.player) === String(playerName));
+  if (!hit) return null;
+  const url = d.medals && d.medals[String(hit.rank)] ? d.medals[String(hit.rank)] : null;
+  return url;
+}
+
+function updatePlayerLabelMedal(playerName){
+  const label = el('playerLabel');
+  if (!label) return;
+
+  label.textContent = 'Player';
+
+  ensureTop3(() => {
+    const url = medalForPlayer(playerName);
+    if (!url) return;
+
+    const img = document.createElement('img');
+    img.src = url;
+    img.className = 'medal';
+    img.alt = 'Medal';
+    label.appendChild(img);
+  });
+}
+
+function populateSelectors(cfg){
+  // ---------- Nights ----------
+  const selN = el('nightDate');
+  selN.innerHTML = '';
+
+  (cfg.nights || []).forEach(n=>{
+    const o = document.createElement('option');
+    o.value = n;
+    o.textContent = n;
+    selN.appendChild(o);
+  });
+
+  if (cfg.nights && cfg.nights.length) {
+    selN.value = cfg.nights[cfg.nights.length - 1];
+  }
+
+  // ---------- Players (NO AUTO-SELECT) ----------
+  const selP = el('playerSelect');
+  selP.innerHTML = '';
+
+  // Placeholder (this is the key fix)
+  const placeholder = document.createElement('option');
+  placeholder.value = '';
+  placeholder.textContent = 'Select a player...';
+  placeholder.selected = true;
+  selP.appendChild(placeholder);
+
+  // Actual players
+  (cfg.players || [])
+    .slice()
+    .sort((a,b)=>a.localeCompare(b))
+    .forEach(p=>{
+      const o = document.createElement('option');
+      o.value = p;
+      o.textContent = p;
+      selP.appendChild(o);
+    });
+
+  renderHeroStats();
+}
+
+function ensureConfig(next){
+  if (CACHE.config) { CONFIG = CACHE.config; populateSelectors(CONFIG); return next && next(); }
+  setStatus('Loading config…');
+  google.script.run
+    .withSuccessHandler(cfg => {
+      CACHE.config = cfg;
+      CONFIG = cfg;
+      populateSelectors(cfg);
+      next && next();
+    })
+    .withFailureHandler(err => setStatus('Config failed:<br><span class="err">'+(err && (err.message||err))+'</span>'))
+    .mobile_getConfig();
+}
+
+function showSection(which){
+  const mBtn = el('tab-master'), nBtn = el('tab-night'), pBtn = el('tab-player');
+  const mSec = el('sec-master'), nSec = el('sec-night'), pSec = el('sec-player');
+
+  [mBtn,nBtn,pBtn].forEach(b=>b.classList.remove('active'));
+  [mSec,nSec,pSec].forEach(s=>s.style.display='none');
+
+  if (which === 'master') {
+    mBtn.classList.add('active'); mSec.style.display = '';
+    loadMaster();
+  } else if (which === 'night') {
+    ensureConfig(() => {
+      nBtn.classList.add('active'); nSec.style.display = '';
+      if (el('nightDate').value) loadNight();
+    });
+  } else {
+    ensureConfig(() => {
+      pBtn.classList.add('active'); pSec.style.display = '';
+      const p = el('playerSelect').value;
+      if (p) loadPlayer();
+    });
+  }
+}
+
+function loadMaster(){
+  if (CACHE.master) return paintMaster(CACHE.master);
+
+  setStatus('Loading leaderboard…');
+  google.script.run
+    .withSuccessHandler(data=>{ CACHE.master = data; paintMaster(data); })
+    .withFailureHandler(err=> setStatus('Leaderboard failed:<br><span class="err">'+(err && (err.message||err))+'</span>'))
+    .mobile_getMaster();
+}
+
+function paintMaster(data){
+  masterData = { headers: data.headers || [], rows: data.rows || [] };
+
+  if (masterSort.col === null) {
+    const idx = (masterData.headers||[]).findIndex(h => /Net\s*Total/i.test(h));
+    masterSort.col = idx >= 0 ? idx : ((masterData.headers||[]).length - 1);
+    masterSort.dir = 'desc';
+  }
+
+  const sorted = sortRows(masterData.rows, masterSort.col, masterSort.dir);
+  renderTable('masterTable', masterData.headers, sorted, masterSort, sortMasterBy, 1, decoratePosNeg, [1]);
+  renderMasterHighlights(masterData.rows || []);
+  renderHeroStats();
+  setStatus('Loaded.', 'ok');
+}
+
+function sortMasterBy(col){
+  if (masterSort.col === col) masterSort.dir = masterSort.dir === 'asc' ? 'desc' : 'asc';
+  else { masterSort.col = col; masterSort.dir = 'asc'; }
+  const sorted = sortRows(masterData.rows, masterSort.col, masterSort.dir);
+  renderTable('masterTable', masterData.headers, sorted, masterSort, sortMasterBy, 1, decoratePosNeg, [1]);
+}
+
+function loadNight(){
+  const night = el('nightDate').value || (CONFIG?.nights?.[0] || '');
+  if (!night) return;
+
+  if (CACHE.nights.has(night)) return paintNight(night, CACHE.nights.get(night));
+
+  setStatus('Loading '+night+'…');
+  google.script.run
+    .withSuccessHandler(data=>{ CACHE.nights.set(night, data); paintNight(night, data); })
+    .withFailureHandler(err=> setStatus('Session load failed:<br><span class="err">'+(err && (err.message||err))+'</span>'))
+    .mobile_getNightTable(night);
+}
+
+function paintNight(night, data){
+  nightData = data || { rows: [], images: [] };
+
+  const strip = el('nightImages');
+  strip.innerHTML = '';
+  (nightData.images || []).forEach(obj => {
+    const a = document.createElement('a');
+    a.href = obj.view; a.target = '_blank';
+    const img = document.createElement('img');
+    img.loading = 'lazy'; img.src = obj.thumb; img.alt = 'Session image';
+    img.onerror = () => { a.textContent = 'Session image'; img.remove(); };
+    a.appendChild(img);
+    strip.appendChild(a);
+  });
+
+  const sorted = sortRows(nightData.rows || [], nightSort.col, nightSort.dir);
+  renderTable('nightView', FRIENDLY_NIGHT, sorted, nightSort, sortNightBy, 1, decoratePosNeg);
+  renderNightSummary(nightData.rows || []);
+  setStatus('Loaded '+night+'.', 'ok');
+}
+
+function sortNightBy(col){
+  if (nightSort.col === col) nightSort.dir = nightSort.dir === 'asc' ? 'desc' : 'asc';
+  else { nightSort.col = col; nightSort.dir = 'asc'; }
+  const sorted = sortRows(nightData.rows || [], nightSort.col, nightSort.dir);
+  renderTable('nightView', FRIENDLY_NIGHT, sorted, nightSort, sortNightBy, 1, decoratePosNeg);
+}
+
+function updateScopeButtonsVisibility(){
+  const n = (playerDataFull?.rows || []).length;
+  el('btn5').hidden  = n < 5;
+  el('btn10').hidden = n < 10;
+}
+
+function summarizeRows(rows){
+  let buy=0,cash=0,net=0;
+  (rows||[]).forEach(r=>{
+    buy  += coerceNumber(r[5]) || 0;
+    cash += coerceNumber(r[6]) || 0;
+    net  += coerceNumber(r[7]) || 0;
+  });
+  const games = (rows||[]).length;
+  return {
+    totalBuyIn: buy, cashOut: cash, net,
+    gamesPlayed: games,
+    avgBuyIn: games ? buy/games : 0,
+    avgCashOut: games ? cash/games : 0,
+    avgNet: games ? net/games : 0
+  };
+}
+
+function chartFromRows(rows){
+  const dates=[], running=[]; let acc=0;
+  (rows||[]).forEach(r=>{
+    acc += coerceNumber(r[7]) || 0;
+    dates.push(r[0]);
+    running.push(acc);
+  });
+  return { dates, running };
+}
+
+function applyPlayerScope(scope){
+  playerScope = scope;
+
+  const rowsAll = (playerDataFull?.rows || []).slice();
+  let rows = rowsAll;
+  if (scope === 'last10') rows = rowsAll.slice(-10);
+  if (scope === 'last5')  rows = rowsAll.slice(-5);
+
+  const t = (scope === 'all')
+    ? (playerDataFull?.totals || summarizeRows(rowsAll))
+    : summarizeRows(rows);
+
+  el('dashBuy').textContent      = NF.format(t.totalBuyIn || 0);
+  el('dashCash').textContent     = NF.format(t.cashOut || 0);
+  el('dashNet').textContent      = NF.format(t.net || 0);
+  el('dashNet').style.color      = (t.net < 0) ? '#b42318' : '#0f172a';
+
+  el('dashAvgBuy').textContent   = NF.format(t.avgBuyIn || 0);
+  el('dashAvgCash').textContent  = NF.format(t.avgCashOut || 0);
+  el('dashAvgNet').textContent   = NF.format(t.avgNet || 0);
+  el('dashAvgNet').style.color   = (t.avgNet < 0) ? '#b42318' : '#0f172a';
+
+  const ch = chartFromRows(rows);
+  renderPlayerChart(ch.dates, ch.running);
+
+  const label = (scope === 'all' ? 'All games' : scope === 'last10' ? 'Last 10' : 'Last 5');
+  el('scopeBadge').textContent = label;
+
+  ['btnAll','btn10','btn5'].forEach(id=>el(id).classList.remove('active'));
+  if (scope === 'all') el('btnAll').classList.add('active');
+  if (scope === 'last10') el('btn10').classList.add('active');
+  if (scope === 'last5') el('btn5').classList.add('active');
+}
+
+function makeStatRow(label, value, neg=false){
+  const div = document.createElement('div');
+  div.className = 'stat-row';
+  const s = document.createElement('span'); s.textContent = label;
+  const b = document.createElement('b'); b.textContent = value;
+  if (neg) b.style.color = '#b42318';
+  div.appendChild(s);
+  div.appendChild(b);
+  return div;
+}
+
+function renderYearReviews(yirs){
+  const host = el('yearReviews');
+  host.innerHTML = '';
+  if (!yirs || !yirs.length) return;
+
+  yirs.forEach(y => {
+    const year = y.year;
+    const rows = y.rows || [];
+    const t = y.totals || summarizeRows(rows);
+    const chart = y.chart || chartFromRows(rows);
+
+    const wrap = document.createElement('div');
+    wrap.className = 'yir-wrap';
+
+    const details = document.createElement('details');
+    details.className = 'yir-details';
+
+    const summary = document.createElement('summary');
+    summary.className = 'yir-head';
+
+    const left = document.createElement('div');
+    left.className = 'left';
+    left.innerHTML = `
+      <div class="yir-title">Year in Review — ${year}</div>
+      <div class="yir-sub">${NF_INT.format(t.gamesPlayed || 0)} games in ${year}</div>
+    `;
+
+    const right = document.createElement('div');
+    right.className = 'yir-right';
+    right.innerHTML = `<span class="badge">${NF_INT.format(t.gamesPlayed || 0)} games</span>`;
+
+    summary.appendChild(left);
+    summary.appendChild(right);
+
+    const body = document.createElement('div');
+    body.className = 'yir-body';
+
+    const grid = document.createElement('div');
+    grid.className = 'yir-grid';
+
+    const totalsLike = document.createElement('div');
+    totalsLike.className = 'totals-grid';
+
+    const colL = document.createElement('div');
+    colL.className = 'totals-col';
+    colL.appendChild(makeStatRow('Total Buy-in', NF.format(t.totalBuyIn || 0)));
+    colL.appendChild(makeStatRow('Cash-out', NF.format(t.cashOut || 0)));
+    colL.appendChild(makeStatRow('Net', NF.format(t.net || 0), (t.net < 0)));
+
+    const colR = document.createElement('div');
+    colR.className = 'totals-col';
+    colR.appendChild(makeStatRow('Avg Buy-in', NF.format(t.avgBuyIn || 0)));
+    colR.appendChild(makeStatRow('Avg Cash-out', NF.format(t.avgCashOut || 0)));
+    colR.appendChild(makeStatRow('Avg Net', NF.format(t.avgNet || 0), (t.avgNet < 0)));
+
+    totalsLike.appendChild(colL);
+    totalsLike.appendChild(colR);
+
+    const chartBox = document.createElement('div');
+    chartBox.className = 'miniChartBox';
+    const chartInner = document.createElement('div');
+    chartInner.style.width = '100%';
+    chartBox.appendChild(chartInner);
+
+    grid.appendChild(totalsLike);
+    grid.appendChild(chartBox);
+
+    body.appendChild(grid);
+
+    const tableWrap = document.createElement('div');
+    tableWrap.className = 'table-scroll';
+
+    const table = document.createElement('table');
+    table.id = 'yirTable_' + year;
+    table.innerHTML = '<thead></thead><tbody></tbody>';
+
+    tableWrap.appendChild(table);
+    body.appendChild(tableWrap);
+
+    details.appendChild(summary);
+    details.appendChild(body);
+    wrap.appendChild(details);
+    host.appendChild(wrap);
+
+    renderMiniChart(chartInner, chart.dates || [], chart.running || []);
+    const sorted = sortRows(rows || [], 0, 'asc');
+    renderTable(table.id, PLAYER_HEADERS, sorted, {col:0, dir:'asc'}, ()=>{}, 1, decoratePosNeg);
+  });
+}
+
+function loadPlayer(){
+  const player = el('playerSelect').value;
+
+  if (!player) {
+    playerDataFull = null;
+
+    updatePlayerLabelMedal('');
+    el('gamesAllTime').textContent = 'Select a player to view stats';
+
+    el('dashBuy').textContent = '—';
+    el('dashCash').textContent = '—';
+    el('dashNet').textContent = '—';
+    el('dashAvgBuy').textContent = '—';
+    el('dashAvgCash').textContent = '—';
+    el('dashAvgNet').textContent = '—';
+
+    el('dashNet').style.color = '#0f172a';
+    el('dashAvgNet').style.color = '#0f172a';
+
+    el('scopeBadge').textContent = 'No player selected';
+
+    el('btn5').hidden = true;
+    el('btn10').hidden = true;
+    el('btnAll').classList.add('active');
+    el('btn10').classList.remove('active');
+    el('btn5').classList.remove('active');
+
+    el('playerChart').innerHTML = `
+      <div class="card" style="text-align:center; padding:36px 20px;">
+        <div style="font-size:18px; font-weight:900; color:#0f172a; margin-bottom:8px;">
+          Select a player
+        </div>
+        <div style="font-size:14px; color:#64748b; font-weight:700;">
+          Choose a player from the dropdown to load stats, chart history, and year-in-review summaries.
+        </div>
+      </div>
+    `;
+
+    el('yearReviews').innerHTML = '';
+    setStatus('Select a player.', '');
+    return;
+  }
+
+  updatePlayerLabelMedal(player);
+
+  if (CACHE.players.has(player)) {
+    playerDataFull = CACHE.players.get(player);
+    paintPlayer(player);
+    setStatus('Loaded ' + player + '.', 'ok');
+    return;
+  }
+
+  setStatus('Loading ' + player + '…');
+  google.script.run
+    .withSuccessHandler(data=>{
+      CACHE.players.set(player, data);
+      playerDataFull = data;
+      paintPlayer(player);
+      setStatus('Loaded ' + player + '.', 'ok');
+    })
+    .withFailureHandler(err=>{
+      setStatus('Player load failed:<br><span class="err">'+(err && (err.message||err))+'</span>');
+    })
+    .mobile_getPlayerTable(player);
+}
+
+function paintPlayer(player){
+  const allGames = playerDataFull.totals?.gamesPlayed ?? (playerDataFull.rows||[]).length ?? 0;
+  el('gamesAllTime').textContent = `${NF_INT.format(allGames)} games all time`;
+
+  updateScopeButtonsVisibility();
+  applyPlayerScope('all');
+
+  renderYearReviews(playerDataFull.yearReviews || []);
+}
+
+(function boot(){
+  ensureConfig(() => { showSection('master'); setStatus('Loaded.', 'ok'); });
+})();
+</script>
+</body>
+</html>
